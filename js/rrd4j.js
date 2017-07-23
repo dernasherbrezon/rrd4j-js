@@ -3,16 +3,47 @@
 	$.fn.rrd4j = function(options) {
 		// Establish our default settings
 		var settings = $.extend({
+			points: {
+				show: true
+			},
+			xaxis: {
+			    mode: "time",
+			    timeformat: "%Y/%m/%d"
+			},
+			grid: {
+				hoverable: true,
+				clickable: true
+			}
 		}, options);
 
+		$("<div id='rrd4jTooltip'></div>").css({
+			position: "absolute",
+			display: "none",
+			border: "1px solid #fdd",
+			padding: "2px",
+			"background-color": "#fee",
+			opacity: 0.80
+		}).appendTo("body");
+		
 		return this.each(function() {
-			var oReq = new XMLHttpRequest();
-			oReq.open("GET", $(this).attr("data-src"), true);
+			var oReq = new XMLHttpRequest(), $this = $(this);
+			oReq.open("GET", $this.attr("data-src"), true);
 			oReq.responseType = "arraybuffer";
 			oReq.onload = function(oEvent) {
 				var byteArray = new Uint8Array(oReq.response);
 				var file = new RRDFile(byteArray);
-				console.log(file.signature + " " + file.step + " " + file.dsCount + " " + file.arcCount);
+				$.plot($this, [ [[0, 0], [new Date().getTime(), 1]] ], settings);
+				$this.bind("plothover", function (event, pos, item) {
+					if (item) {
+						var x = item.datapoint[0].toFixed(2),
+							y = item.datapoint[1].toFixed(2);
+						$("#rrd4jTooltip").html(y)
+							.css({top: item.pageY+5, left: item.pageX+5})
+							.fadeIn(200);
+					} else {
+						$("#rrd4jTooltip").hide();
+					}
+				});
 			};
 			oReq.send();
 		});

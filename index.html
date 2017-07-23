@@ -1,16 +1,22 @@
 <html>
 <head>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
 <script src="js/rrd4j.js"></script>
 </head>
 <body>
-	<div class="rrdgraph" data-src="data/demo.rrd"></div>
+	<div class="rrdgraph" style="width:600px;height:300px" data-src="data/demo.rrd"></div>
 	<script>
 		jQuery(document).ready(function($) {
 			$(".rrdgraph").rrd4j({
-				
-				
-				
+				series: {
+			        lines: { show: true },
+			        points: { show: true }
+			    },
+			    legend: {
+			        show: true
+			    }
 			});
 		});
 	</script>
