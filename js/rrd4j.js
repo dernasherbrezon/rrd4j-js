@@ -25,33 +25,42 @@
 			opacity : 0.80
 		}).appendTo("body");
 
-		return this.each(function() {
-			var oReq = new XMLHttpRequest(), $this = $(this);
-			oReq.open("GET", $this.attr("data-src"), true);
-			oReq.responseType = "arraybuffer";
-			oReq.onload = function(oEvent) {
-				var file = new RRDFile(new Uint8Array(oReq.response));
-				$.plot($this, [ file.getData($this.attr("data-ds"), $this.attr("data-cf"), $this.attr("data-start"), $this.attr("data-end")) ], settings);
-				$this.bind("plothover", function(event, pos, item) {
-					if (item) {
-						var x = item.datapoint[0].toFixed(2), y = item.datapoint[1].toFixed(2);
-						$("#rrd4jTooltip").html(y).css({
-							top : item.pageY + 5,
-							left : item.pageX + 5
-						}).fadeIn(200);
-					} else {
-						$("#rrd4jTooltip").hide();
-					}
-				});
-			};
-			oReq.send();
-		});
+		return new RRD4JComponent($(this), settings);
 	}
+	
+	function RRD4JComponent(domElement, settings) {
+		var oReq = new XMLHttpRequest(), $this = this;
+		oReq.open("GET", domElement.attr("data-src"), true);
+		oReq.responseType = "arraybuffer";
+		$this.test = "test";
+		$this.domElement = domElement;
+		oReq.onload = function(oEvent) {
+			$this.file = new RRDFile(new Uint8Array(oReq.response));
+			$this.plot = $.plot(domElement, [ $this.file.getData(domElement.attr("data-ds"), domElement.attr("data-cf"), domElement.attr("data-start"), domElement.attr("data-end")) ], settings);
+			domElement.bind("plothover", function(event, pos, item) {
+				if (item) {
+					var x = item.datapoint[0].toFixed(2), y = item.datapoint[1].toFixed(2);
+					$("#rrd4jTooltip").html(y).css({
+						top : item.pageY + 5,
+						left : item.pageX + 5
+					}).fadeIn(200);
+				} else {
+					$("#rrd4jTooltip").hide();
+				}
+			});
+		};
+		oReq.send();
+	}
+	
+	RRD4JComponent.prototype.updateInterval = function(start, end) {
+		this.plot.setData([this.file.getData(this.domElement.attr("data-ds"), this.domElement.attr("data-cf"), start, end)]);
+		this.plot.setupGrid();
+		this.plot.draw();
+	} 
 
 	function Datasource(rrdFile) {
 		this.dsName = rrdFile.getString();
 		this.dsType = rrdFile.getString();
-		console.log(this.dsName);
 		this.heartbeat = rrdFile.getLong();
 		this.minValue = rrdFile.getDouble();
 		this.maxValue = rrdFile.getDouble();

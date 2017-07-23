@@ -6,15 +6,20 @@
 <script src="js/rrd4j.js"></script>
 </head>
 <body>
-	<div class="rrdgraph" style="width:600px;height:300px" data-src="data/demo.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000"></div>
+	<div class="rrdgraph" style="width:800px;height:500px" data-src="data/demo.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000"></div>
+	<button id="updateInterval">Update interval</button>
 	<script>
 		jQuery(document).ready(function($) {
-			$(".rrdgraph").rrd4j({
+			var rrd4j = $(".rrdgraph").rrd4j({
 			    legend: {
 			        show: true
 			    }
+			});
+			$("#updateInterval").click(function(){
+				rrd4j.updateInterval(1275346800000, 1277938800000);
 			});
 		});
 	</script>
 </body>
 </html>
+
