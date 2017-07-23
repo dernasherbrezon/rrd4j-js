@@ -3,28 +3,28 @@
 	$.fn.rrd4j = function(options) {
 		// Establish our default settings
 		var settings = $.extend({
-			points: {
-				show: true
+			points : {
+				show : false
 			},
-			xaxis: {
-			    mode: "time",
-			    timeformat: "%Y/%m/%d"
+			xaxis : {
+				mode : "time",
+				timeformat : "%Y/%m/%d"
 			},
-			grid: {
-				hoverable: true,
-				clickable: true
+			grid : {
+				hoverable : true,
+				clickable : true
 			}
 		}, options);
 
 		$("<div id='rrd4jTooltip'></div>").css({
-			position: "absolute",
-			display: "none",
-			border: "1px solid #fdd",
-			padding: "2px",
-			"background-color": "#fee",
-			opacity: 0.80
+			position : "absolute",
+			display : "none",
+			border : "1px solid #fdd",
+			padding : "2px",
+			"background-color" : "#fee",
+			opacity : 0.80
 		}).appendTo("body");
-		
+
 		return this.each(function() {
 			var oReq = new XMLHttpRequest(), $this = $(this);
 			oReq.open("GET", $this.attr("data-src"), true);
@@ -32,14 +32,14 @@
 			oReq.onload = function(oEvent) {
 				var byteArray = new Uint8Array(oReq.response);
 				var file = new RRDFile(byteArray);
-				$.plot($this, [ [[0, 0], [new Date().getTime(), 1]] ], settings);
-				$this.bind("plothover", function (event, pos, item) {
+				$.plot($this, [ file.getData("sun", "AVERAGE", 1272668400, 1277938800), file.getData("shade", "AVERAGE", 1272668400, 1277938800) ], settings);
+				$this.bind("plothover", function(event, pos, item) {
 					if (item) {
-						var x = item.datapoint[0].toFixed(2),
-							y = item.datapoint[1].toFixed(2);
-						$("#rrd4jTooltip").html(y)
-							.css({top: item.pageY+5, left: item.pageX+5})
-							.fadeIn(200);
+						var x = item.datapoint[0].toFixed(2), y = item.datapoint[1].toFixed(2);
+						$("#rrd4jTooltip").html(y).css({
+							top : item.pageY + 5,
+							left : item.pageX + 5
+						}).fadeIn(200);
 					} else {
 						$("#rrd4jTooltip").hide();
 					}
@@ -52,6 +52,7 @@
 	function Datasource(rrdFile) {
 		this.dsName = rrdFile.getString();
 		this.dsType = rrdFile.getString();
+		console.log(this.dsName);
 		this.heartbeat = rrdFile.getLong();
 		this.minValue = rrdFile.getDouble();
 		this.maxValue = rrdFile.getDouble();
@@ -65,24 +66,80 @@
 		this.xff = rrdFile.getDouble();
 		this.steps = rrdFile.getInt();
 		this.rows = rrdFile.getInt();
+		this.headerStep = rrdFile.step;
+		this.headerLastUpdateTime = rrdFile.lastUpdateTime;
 		this.robins = [];
 		for (var i = 0; i < rrdFile.dsCount; i++) {
 			var curPointer = rrdFile.getInt(), arcState = new ArcState(rrdFile);
-			this.robins.push(new RobinMatrix(curPointer, arcState));
+			this.robins.push(new RobinMatrix(curPointer, arcState, this.rows));
 		}
-		for( var j = 0; j < this.rows; j++ ) {
+		for (var j = 0; j < this.rows; j++) {
 			for (var i = 0; i < rrdFile.dsCount; i++) {
 				this.robins[i].data.push(rrdFile.getDouble());
 			}
 		}
 	}
 
-	function RobinMatrix(pointer, arcState) {
+	Archive.prototype.getArcStep = function() {
+		return this.headerStep * this.steps;
+	}
+
+	Archive.prototype.getStartTime = function() {
+		var endTime = this.getEndTime(), arcStep = this.getArcStep();
+		return endTime - (this.rows - 1) * arcStep;
+	}
+
+	Archive.prototype.getEndTime = function() {
+		return normalize(this.headerLastUpdateTime, this.getArcStep());
+	}
+	
+	Archive.prototype.getData = function(dsIndex, requestFetchStart, requestFetchEnd) {
+		var arcStep = this.getArcStep(), fetchStart = normalize(requestFetchStart, arcStep), fetchEnd = normalize(requestFetchEnd, arcStep);
+        if (fetchEnd < requestFetchEnd) {
+            fetchEnd += arcStep;
+        }
+        var startTime = this.getStartTime(), endTime = this.getEndTime(), ptsCount = ((fetchEnd - fetchStart) / arcStep + 1), matchStartTime = Math.max(fetchStart, startTime), matchEndTime = Math.min(fetchEnd, endTime), robinValues = [];
+        
+        if (matchStartTime <= matchEndTime) {
+            // preload robin values
+            var matchCount = ((matchEndTime - matchStartTime) / arcStep + 1), matchStartIndex = ((matchStartTime - startTime) / arcStep);
+            robinValues = this.robins[dsIndex].getValues(matchStartIndex, matchCount);
+        }
+        var result = [];
+        for (var ptIndex = 0; ptIndex < ptsCount; ptIndex++) {
+        	var time = fetchStart + ptIndex * arcStep, value = NaN;
+            if (time >= matchStartTime && time <= matchEndTime) {
+                // inbound time
+                value = robinValues[((time - matchStartTime) / arcStep)];
+            }
+            result.push([fetchStart + ptIndex * arcStep, value]);
+        }
+        
+        return result;
+	}
+
+	function normalize(timestamp, step) {
+		return timestamp - timestamp % step;
+	}
+
+	function RobinMatrix(pointer, arcState, rows) {
 		this.pointer = pointer;
 		this.arcState = arcState;
+		this.rows = rows;
 		this.data = [];
 	}
 	
+	RobinMatrix.prototype.getValues = function(index, count) {
+		var startIndex = (this.pointer + index) % this.rows, tailReadCount = Math.min(this.rows - startIndex, count), tailValues = this.data.slice(startIndex, startIndex + tailReadCount);
+        if (tailReadCount < count) {
+            var headReadCount = count - tailReadCount, headValues = this.data.slice(0, 0 + headReadCount);
+            return tailValues.concat(headValues);
+        }
+        else {
+            return tailValues;
+        }
+	}
+
 	function ArcState(rrdFile) {
 		this.accumValue = rrdFile.getDouble();
 		this.nanSteps = rrdFile.getLong();
@@ -95,8 +152,7 @@
 		this.step = this.getLong();
 		this.dsCount = this.getInt();
 		this.arcCount = this.getInt();
-		// last update time
-		this.skip(8);
+		this.lastUpdateTime = this.getLong();
 		this.datasources = [];
 		for (var i = 0; i < this.dsCount; i++) {
 			this.datasources.push(new Datasource(this));
@@ -105,6 +161,62 @@
 		for (var i = 0; i < this.arcCount; i++) {
 			this.archives.push(new Archive(this));
 		}
+	}
+
+	RRDFile.prototype.getData = function(dsName, consolFun, fetchStart, fetchEnd) {
+		var dsIndex = this.getDsIndex(dsName), archive = this.getArchive(consolFun, fetchStart, fetchEnd);
+		if (dsIndex == -1 || archive == null) {
+			return {};
+		}
+		var result = {
+			label : dsName,
+			data : archive.getData(dsIndex, fetchStart, fetchEnd)
+		};
+		return result;
+	}
+
+	RRDFile.prototype.getArchive = function(consolFun, fetchStart, fetchEnd) {
+		var bestFullMatch = null, bestPartialMatch = null, bestStepDiff = 0, bestMatch = 0;
+		for (var i = 0; i < this.arcCount; i++) {
+			var archive = this.archives[i];
+			if (archive.consolFun != consolFun) {
+				continue;
+			}
+			var arcStep = archive.getArcStep(), arcStart = archive.getStartTime() - arcStep, fullMatch = fetchEnd - fetchStart, tmpStepDiff = Math.abs(archive.getArcStep() - 1);
+			// we need step difference in either full or partial case
+			if (arcStart <= fetchStart) {
+				// best full match
+				if (bestFullMatch == null || tmpStepDiff < bestStepDiff) {
+					bestStepDiff = tmpStepDiff;
+					bestFullMatch = archive;
+				}
+			} else {
+				// best partial match
+				var tmpMatch = fullMatch;
+				if (arcStart > fetchStart) {
+					tmpMatch -= (arcStart - fetchStart);
+				}
+				if (bestPartialMatch == null || bestMatch < tmpMatch || (bestMatch == tmpMatch && tmpStepDiff < bestStepDiff)) {
+					bestPartialMatch = archive;
+					bestMatch = tmpMatch;
+				}
+			}
+		}
+		if (bestFullMatch != null) {
+			return bestFullMatch;
+		} else if (bestPartialMatch != null) {
+			return bestPartialMatch;
+		}
+		return null;
+	}
+
+	RRDFile.prototype.getDsIndex = function(dsName) {
+		for (var i = 0; i < this.dsCount; i++) {
+			if (dsName == this.datasources[i].dsName) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	RRDFile.prototype.getString = function() {
