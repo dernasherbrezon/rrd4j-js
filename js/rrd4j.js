@@ -32,7 +32,7 @@
 			oReq.onload = function(oEvent) {
 				var byteArray = new Uint8Array(oReq.response);
 				var file = new RRDFile(byteArray);
-				$.plot($this, [ file.getData("sun", "AVERAGE", 1272668400, 1277938800), file.getData("shade", "AVERAGE", 1272668400, 1277938800) ], settings);
+				$.plot($this, [ file.getData("sun", "AVERAGE", 1272668400000, 1277938800000), file.getData("shade", "AVERAGE", 1272668400000, 1277938800000) ], settings);
 				$this.bind("plothover", function(event, pos, item) {
 					if (item) {
 						var x = item.datapoint[0].toFixed(2), y = item.datapoint[1].toFixed(2);
@@ -112,7 +112,7 @@
                 // inbound time
                 value = robinValues[((time - matchStartTime) / arcStep)];
             }
-            result.push([fetchStart + ptIndex * arcStep, value]);
+            result.push([(fetchStart + ptIndex * arcStep) * 1000, value]);
         }
         
         return result;
@@ -164,13 +164,13 @@
 	}
 
 	RRDFile.prototype.getData = function(dsName, consolFun, fetchStart, fetchEnd) {
-		var dsIndex = this.getDsIndex(dsName), archive = this.getArchive(consolFun, fetchStart, fetchEnd);
+		var dsIndex = this.getDsIndex(dsName), archive = this.getArchive(consolFun, fetchStart / 1000, fetchEnd / 1000);
 		if (dsIndex == -1 || archive == null) {
 			return {};
 		}
 		var result = {
 			label : dsName,
-			data : archive.getData(dsIndex, fetchStart, fetchEnd)
+			data : archive.getData(dsIndex, fetchStart / 1000, fetchEnd / 1000)
 		};
 		return result;
 	}
