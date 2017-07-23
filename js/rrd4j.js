@@ -30,9 +30,8 @@
 			oReq.open("GET", $this.attr("data-src"), true);
 			oReq.responseType = "arraybuffer";
 			oReq.onload = function(oEvent) {
-				var byteArray = new Uint8Array(oReq.response);
-				var file = new RRDFile(byteArray);
-				$.plot($this, [ file.getData("sun", "AVERAGE", 1272668400000, 1277938800000), file.getData("shade", "AVERAGE", 1272668400000, 1277938800000) ], settings);
+				var file = new RRDFile(new Uint8Array(oReq.response));
+				$.plot($this, [ file.getData($this.attr("data-ds"), $this.attr("data-cf"), $this.attr("data-start"), $this.attr("data-end")) ], settings);
 				$this.bind("plothover", function(event, pos, item) {
 					if (item) {
 						var x = item.datapoint[0].toFixed(2), y = item.datapoint[1].toFixed(2);

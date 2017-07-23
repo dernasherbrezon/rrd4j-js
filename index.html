@@ -6,14 +6,10 @@
 <script src="js/rrd4j.js"></script>
 </head>
 <body>
-	<div class="rrdgraph" style="width:600px;height:300px" data-src="data/demo.rrd"></div>
+	<div class="rrdgraph" style="width:600px;height:300px" data-src="data/demo.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000"></div>
 	<script>
 		jQuery(document).ready(function($) {
 			$(".rrdgraph").rrd4j({
-				series: {
-			        lines: { show: true },
-			        points: { show: true }
-			    },
 			    legend: {
 			        show: true
 			    }
