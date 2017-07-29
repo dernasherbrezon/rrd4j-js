@@ -7,7 +7,11 @@
 <script src="js/rrd4j.js"></script>
 </head>
 <body>
-	<div class="rrdgraph" style="width:800px;height:500px" data-src="data/demo.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000"></div>
+	<div class="rrdgraph" style="width:800px;height:100px" data-src="data/missing.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000">
+		explicitly missing
+	</div>
+	<div class="rrdgraph" style="width:800px;height:100px" data-src="data/demo.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000"></div>
+	<div class="rrdgraph" style="width:800px;height:100px" data-src="data/demo.rrd" data-ds="sun" data-cf="AVERAGE" data-start="1272668400000" data-end="1277938800000"></div>
 	<button id="updateInterval">Update interval</button>
 	<script>
 		jQuery(document).ready(function($) {
