@@ -1,6 +1,6 @@
 {
   "name": "rrd4j-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Javascript library for loading rrd4j files and rendering them using flot",
   "main": "js/rrd4j-js.js",
   "repository": {
