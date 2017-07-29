@@ -3,6 +3,7 @@
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flot.tooltip/0.8.3/jquery.flot.tooltip.js"></script>
 <script src="js/rrd4j.js"></script>
 </head>
 <body>
@@ -13,6 +14,12 @@
 			var rrd4j = $(".rrdgraph").rrd4j({
 			    legend: {
 			        show: true
+			    },
+			    tooltip: {
+			    	show: true,
+			    	content: function() {
+			    		return "%y";
+			    	}
 			    }
 			});
 			$("#updateInterval").click(function(){
