@@ -1,6 +1,6 @@
 # About
 
-Javascript library for loading rrd4j files and rendering them using flot
+Javascript library for loading [rrd4j](https://github.com/rrd4j/rrd4j) files and rendering them using flot
 
 ![sample](sample.png)
 
@@ -10,11 +10,11 @@ Javascript library for loading rrd4j files and rendering them using flot
 
 Include script **after** the jQuery library:
 
-	<script src="/js/rrd4j.js"></script>
+	<script src="/js/rrd4j-js.js"></script>
 
 ### NPM
 
-	npm install rrd4j
+	npm install rrd4j-js
 
 # Usage
 

@@ -1,11 +1,11 @@
 {
-  "name": "rrd4j",
+  "name": "rrd4j-js",
   "version": "1.0.3",
   "description": "Javascript library for loading rrd4j files and rendering them using flot",
-  "main": "js/rrd4j.js",
+  "main": "js/rrd4j-js.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dernasherbrezon/rrd4j-javascript.git"
+    "url": "git+https://github.com/dernasherbrezon/rrd4j-js.git"
   },
   "keywords": [
     "jquery-plugin",
@@ -15,9 +15,9 @@
   "author": "dernasherbrezon",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/dernasherbrezon/rrd4j-javascript/issues"
+    "url": "https://github.com/dernasherbrezon/rrd4j-js/issues"
   },
-  "homepage": "https://github.com/dernasherbrezon/rrd4j-javascript#readme",
+  "homepage": "https://github.com/dernasherbrezon/rrd4j-js#readme",
   "dependencies": {
     "jquery-flot": ">=0.8.3",
     "jquery": ">=1.12.4"
