@@ -34,7 +34,6 @@
 		var oReq = new XMLHttpRequest(), $this = this;
 		oReq.open("GET", domElement.attr("data-src"), true);
 		oReq.responseType = "arraybuffer";
-		$this.test = "test";
 		$this.domElement = domElement;
 		oReq.onload = function(oEvent) {
 			if( oReq.status != 200 ) {
