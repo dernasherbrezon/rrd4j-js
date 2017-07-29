@@ -6,10 +6,14 @@ Javascript library for loading rrd4j files and rendering them using flot
 
 ### Manual 
 
-Download rrd4j.js into your project and include:
+Include script **after** the jQuery library:
 
 	<script src="/js/rrd4j.js"></script>
 
 ### NPM
 
 	npm install rrd4j
+
+# Usage
+
+See ```index.html``` for examples.
