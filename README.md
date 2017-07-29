@@ -2,6 +2,8 @@
 
 Javascript library for loading rrd4j files and rendering them using flot
 
+![sample](sample.png)
+
 # Installation
 
 ### Manual 
