@@ -1,6 +1,6 @@
 {
   "name": "rrd4j",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Javascript library for loading rrd4j files and rendering them using flot",
   "main": "js/rrd4j.js",
   "repository": {
@@ -18,8 +18,8 @@
     "url": "https://github.com/dernasherbrezon/rrd4j-javascript/issues"
   },
   "homepage": "https://github.com/dernasherbrezon/rrd4j-javascript#readme",
-   "dependencies" :
-  	{ "jquery-flot" : ">=0.8.3",
-  	  "jquery": ">=1.12.4"
-  	}
+  "dependencies": {
+    "jquery-flot": ">=0.8.3",
+    "jquery": ">=1.12.4"
+  }
 }
