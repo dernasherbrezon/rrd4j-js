@@ -218,3 +218,5 @@ RRDFile.prototype.getInt = function () {
 RRDFile.prototype.skip = function (numBytes) {
   this.index += numBytes
 }
+
+export default RRDFile
