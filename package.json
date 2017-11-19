@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "lint": "eslint --ext .js src test",
-    "test": "mocha --require babel-core/register"
+    "test": "mocha --require babel-core/register",
+    "debug-test": "mocha --require babel-core/register --debug-brk"
   },
   "repository": {
     "type": "git",

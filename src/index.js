@@ -1,5 +1,5 @@
 class Datasource {
-  constructor(rrdFile) {
+  constructor (rrdFile) {
     this.dsName = rrdFile.getString()
     this.dsType = rrdFile.getString()
     this.heartbeat = rrdFile.getLong()
@@ -12,7 +12,7 @@ class Datasource {
 }
 
 class Archive {
-  constructor(rrdFile) {
+  constructor (rrdFile) {
     this.consolFun = rrdFile.getString()
     this.xff = rrdFile.getDouble()
     this.steps = rrdFile.getInt()
@@ -31,22 +31,22 @@ class Archive {
       }
     }
   }
-  
+
   getArcStep () {
     return this.headerStep * this.steps
   }
-  
-  getStartTime() {
+
+  getStartTime () {
     var endTime = this.getEndTime()
     var arcStep = this.getArcStep()
     return endTime - (this.rows - 1) * arcStep
   }
-  
-  getEndTime() {
+
+  getEndTime () {
     return normalize(this.headerLastUpdateTime, this.getArcStep())
   }
-  
-  getData(dsIndex, requestFetchStart, requestFetchEnd) {
+
+  getData (dsIndex, requestFetchStart, requestFetchEnd) {
     var arcStep = this.getArcStep()
     var fetchStart = normalize(requestFetchStart, arcStep)
     var fetchEnd = normalize(requestFetchEnd, arcStep)
@@ -59,7 +59,7 @@ class Archive {
     var matchStartTime = Math.max(fetchStart, startTime)
     var matchEndTime = Math.min(fetchEnd, endTime)
     var robinValues = []
-    
+
     if (matchStartTime <= matchEndTime) {
       // preload robin values
       var matchCount = ((matchEndTime - matchStartTime) / arcStep + 1)
@@ -76,25 +76,24 @@ class Archive {
       }
       result.push([ (fetchStart + ptIndex * arcStep) * 1000, value ])
     }
-    
+
     return result
   }
 }
-
 
 function normalize (timestamp, step) {
   return timestamp - timestamp % step
 }
 
 class RobinMatrix {
-  constructor(pointer, arcState, rows) {
+  constructor (pointer, arcState, rows) {
     this.pointer = pointer
     this.arcState = arcState
     this.rows = rows
     this.data = []
   }
-  
-  getValues(index, count) {
+
+  getValues (index, count) {
     var startIndex = (this.pointer + index) % this.rows
     var tailReadCount = Math.min(this.rows - startIndex, count)
     var tailValues = this.data.slice(startIndex, startIndex + tailReadCount)
@@ -106,17 +105,17 @@ class RobinMatrix {
       return tailValues
     }
   }
-} 
+}
 
 class ArcState {
-  constructor(rrdFile) {
+  constructor (rrdFile) {
     this.accumValue = rrdFile.getDouble()
     this.nanSteps = rrdFile.getLong()
   }
-} 
+}
 
 class RRDFile {
-  constructor(byteArray) {
+  constructor (byteArray) {
     this.data = byteArray
     this.index = 0
     this.signature = this.getString()
@@ -133,21 +132,24 @@ class RRDFile {
       this.archives.push(new Archive(this))
     }
   }
-  
-  getData(dsName, consolFun, fetchStart, fetchEnd) {
+
+  getData (dsName, consolFun, fetchStart, fetchEnd) {
     var dsIndex = this.getDsIndex(dsName)
+    if (dsIndex === -1) {
+      return {}
+    }
     var archive = this.getArchive(consolFun, fetchStart / 1000, fetchEnd / 1000)
-    if (dsIndex === -1 || archive === null) {
+    if (archive === null) {
       return {}
     }
     var result = {
-        label: dsName,
-        data: archive.getData(dsIndex, fetchStart / 1000, fetchEnd / 1000)
+      label: dsName,
+      data: archive.getData(dsIndex, fetchStart / 1000, fetchEnd / 1000)
     }
     return result
   }
-  
-  getArchive(consolFun, fetchStart, fetchEnd) {
+
+  getArchive (consolFun, fetchStart, fetchEnd) {
     var bestFullMatch = null
     var bestPartialMatch = null
     var bestStepDiff = 0
@@ -187,8 +189,8 @@ class RRDFile {
     }
     return null
   }
-  
-  getDsIndex(dsName) {
+
+  getDsIndex (dsName) {
     for (var i = 0; i < this.dsCount; i++) {
       if (dsName === this.datasources[i].dsName) {
         return i
@@ -196,35 +198,36 @@ class RRDFile {
     }
     return -1
   }
-  
-  getString() {
+
+  getString () {
     var result = ''
-      for (var i = 0; i < 40; i += 2) {
-        result += String.fromCharCode(this.data[this.index + i + 1])
-      }
-      this.index += 40
-      return result.trim()
+    for (var i = 0; i < 40; i += 2) {
+      result += String.fromCharCode(this.data[this.index + i + 1])
     }
-  getDouble() {
+    this.index += 40
+    return result.trim()
+  }
+
+  getDouble () {
     var view = new DataView(this.data.buffer, this.index, 8)
     var result = view.getFloat64(0, false)
     this.index += 8
     return result
   }
-  
-  getLong() {
+
+  getLong () {
     var high = this.getInt()
     var low = this.getInt()
     return (high << 32) + (low & 0xFFFFFFFF)
   }
 
-  getInt() {
+  getInt () {
     var result = ((this.data[this.index + 0] << 24) & 0xFF000000) + ((this.data[this.index + 1] << 16) & 0x00FF0000) + ((this.data[this.index + 2] << 8) & 0x0000FF00) + ((this.data[this.index + 3] << 0) & 0x000000FF)
     this.index += 4
     return result
   }
-  
-  skip(numBytes) {
+
+  skip (numBytes) {
     this.index += numBytes
   }
 }
