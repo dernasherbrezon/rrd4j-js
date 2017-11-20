@@ -1,7 +1,7 @@
-var expect = require('chai').expect
-var RRDFile = require('../src/index').default
-var fs = require('fs')
-var path = require('path')
+import { expect } from 'chai'
+import RRDFile from '../dist/rrd4j'
+import fs from 'fs'
+import path from 'path'
 
 describe('rrdfile', function () {
   it('should return empty array for unknown ds', function (done) {
