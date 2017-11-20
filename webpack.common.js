@@ -12,5 +12,13 @@ module.exports = {
   output : {
     filename : '[name].js',
     path : path.resolve(__dirname, 'dist')
+  },
+  module: {
+    loaders: [
+      {
+        test: path.join(__dirname, 'src'),
+        loader: 'babel-loader'
+      }
+    ]
   }
 };
