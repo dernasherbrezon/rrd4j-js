@@ -4,9 +4,9 @@
   "description": "Javascript library for loading rrd4j files",
   "main": "dist/rrd4j.js",
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
+    "build": "uglifyjs --compress --mangle --output ./dist/rrd4j.js ./src/index.js",
     "lint": "eslint --ext .js src test",
-    "test": "mocha --require babel-core/register",
+    "test": "mocha",
     "debug-test": "mocha --require babel-core/register --debug-brk"
   },
   "repository": {
@@ -20,11 +20,10 @@
     "url": "https://github.com/dernasherbrezon/rrd4j-js/issues"
   },
   "homepage": "https://github.com/dernasherbrezon/rrd4j-js#readme",
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-es2015": "^6.24.1",
+    "uglify-js": "^3.1.10",
     "chai": "^4.1.2",
     "clean-webpack-plugin": "^0.1.17",
     "eslint": "^4.11.0",
@@ -33,8 +32,6 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "mocha": "^4.0.1",
-    "webpack": "^3.8.1",
-    "webpack-merge": "^4.1.1"
+    "mocha": "^4.0.1"
   }
 }

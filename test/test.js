@@ -1,12 +1,13 @@
-import { expect } from 'chai'
-import RRDFile from '../dist/rrd4j'
-import fs from 'fs'
-import path from 'path'
+var expect = require('chai').expect
+var RRDFile = require('../dist/rrd4j')
+var fs = require('fs')
+var path = require('path')
 
 describe('rrdfile', function () {
   it('should return empty array for unknown ds', function (done) {
     fs.readFile(path.join(__dirname, '/demo.rrd'), function (err, data) {
       expect(err).to.equal(null)
+      console.log(RRDFile)
       var result = new RRDFile(data).getData(Math.random().toString(36).substring(7), 'AVERAGE', new Date(), new Date())
       expect(result).to.deep.equal({})
       done()
