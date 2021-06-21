@@ -1,4 +1,4 @@
-# About [![Build Status](https://travis-ci.org/dernasherbrezon/rrd4j-js.svg?branch=master)](https://travis-ci.org/dernasherbrezon/rrd4j-js)
+# About [![Build Status](https://travis-ci.com/dernasherbrezon/rrd4j-js.svg?branch=master)](https://travis-ci.com/dernasherbrezon/rrd4j-js)
 
 Javascript library for loading [rrd4j](https://github.com/rrd4j/rrd4j) files
 
